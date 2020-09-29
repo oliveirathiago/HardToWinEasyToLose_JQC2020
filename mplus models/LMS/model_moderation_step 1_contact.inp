@@ -1,0 +1,46 @@
+TITLE: 
+	Step 1 for LMS models -- CFA
+
+DATA: 
+	File = "~/Dropbox/mplus_data/contactdata.dat"; ! change accordingly
+
+VARIABLE: 
+
+	NAMES = 	id male age aust
+			duty11 duty21 
+			pj11 pj21 pj31 pj41 
+			eff11 eff21 eff31
+			duty12 duty22 
+			pj12 pj22 pj32 pj42  
+			eff12 eff22 eff32 
+			contact1 
+			proc12 proc32 proc42 proc52
+			out12 out22 out32 out42 ;
+
+      	Usevariables = 	id
+			proc12 proc32 proc42 proc52
+      			out12 out22 out32 out42 ;
+      			
+      	!Categorical = all ;
+	
+    	Idvariable = id ;
+	
+	MISSING=.;
+
+ANALYSIS: 
+	Estimator = MLR ;
+	
+
+MODEL:
+
+	proc by proc12* proc32-proc52 ;
+		proc@1 ;
+		
+	out by out12* out22-out42 ;
+		out@1 ;
+		
+	proc with out ;
+		
+
+OUTPUT:
+	Standardized ;

@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1601395145151.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1889556955",
+    "id" : "515AAB89",
+    "lastKnownWriteTime" : 1601395245,
+    "last_content_update" : 1601395245731,
+    "path" : "~/Dropbox/Papers/English/Published papers/2020 JQC Hard to win, easy to lose/HardToWinEasyToLose_JQC2020/A4_LCA models.R",
+    "project_path" : "A4_LCA models.R",
+    "properties" : {
+        "cursorPosition" : "2,53",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

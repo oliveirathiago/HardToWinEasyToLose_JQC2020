@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1601377716839.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1386731165",
+    "id" : "5DD9ADD3",
+    "lastKnownWriteTime" : 1601392369,
+    "last_content_update" : 1601392369585,
+    "path" : "~/Dropbox/Papers/English/Published papers/2020 JQC Hard to win, easy to lose/HardToWinEasyToLose_JQC2020/A1_CFA models.R",
+    "project_path" : "A1_CFA models.R",
+    "properties" : {
+        "cursorPosition" : "0,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

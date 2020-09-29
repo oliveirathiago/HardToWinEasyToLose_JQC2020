@@ -1,0 +1,212 @@
+source("Cleaning.R") # choose working directory accordingly
+set.seed(03141592)
+
+
+df_contact[, c('proc12', 'proc32', 'proc42', 'proc52',
+               'outcome12', 'outcome22', 'outcome32', 'outcome42')] <- 
+  lapply(df_contact[, c('proc12', 'proc32', 'proc42', 'proc52', 
+                        'outcome12', 'outcome22', 'outcome32', 'outcome42')],
+         ordered)                                                                   # setting all indicators as ordered
+
+############################################################################
+
+## Latent Class models to assess unobserved heterogeneity
+
+process <- with(df_contact, cbind(proc12, proc32, proc42, proc52) ~ 1)              # satisfaction with process
+outcome <- with(df_contact, cbind(outcome12, outcome22, outcome32, outcome42) ~ 1)  # satisfaction with outcome
+
+
+lca_process_2 <- poLCA(process, df_contact, nclass = 2,
+                       maxiter = 500, nrep = 10, na.rm = F, 
+                       verbose = F)#, probs.start = 10)               # Estimates two-class solution for satisfaction with process
+lca_process_3 <- poLCA(process, df_contact, nclass = 3,
+                       maxiter = 500, nrep = 10, na.rm = F, 
+                       verbose = F)#, probs.start = 10)               # Estimates three-class solution for satisfaction with process
+lca_process_4 <- poLCA(process, df_contact, nclass = 4,
+                       maxiter = 500, nrep = 10, na.rm = F, 
+                       verbose = F)#, probs.start = 10)               # Estimates three-class solution for satisfaction with process
+
+lca_outcome_2 <- poLCA(outcome, df_contact, nclass = 2,
+                       maxiter = 500, nrep = 10, na.rm = F, 
+                       verbose = F)#, probs.start = 10)               # Estimates two-class solution for satisfaction with outcome
+lca_outcome_3 <- poLCA(outcome, df_contact, nclass = 3,
+                       maxiter = 500, nrep = 10, na.rm = F, 
+                       verbose = F)#, probs.start = 10)               # Estimates three-class solution for satisfaction with outcome
+lca_outcome_4 <- poLCA(outcome, df_contact, nclass = 4,
+                       maxiter = 500, nrep = 10, na.rm = F, 
+                       verbose = F)#, probs.start = 10)               # Estimates four-class solution for satisfaction with outcome
+
+
+# Relative entropy
+rel.entropy <- function(lca.model) {
+  for (i in ncol(lca.model$posterior)) {
+    sum_posterior <- lca.model$posterior[,i] * log(lca.model$posterior[,i])
+  }
+  numerator <- -sum(sum_posterior, na.rm = T)
+  denominator <- lca.model$N * log(length(lca.model$P))
+  entropy <- 1 - (numerator/denominator)
+  return(entropy)
+} 
+
+
+# Satisfaction with process
+TableA5_process <- data.frame(TwoClass = c(lca_process_2$bic, lca_process_2$aic, rel.entropy(lca_process_2)),
+                      ThreeClass = c(lca_process_3$bic, lca_process_3$aic, rel.entropy(lca_process_3)),
+                      FourClass = c(lca_process_4$bic, lca_process_4$aic, rel.entropy(lca_process_4)))
+
+row.names(TableA5_process) <- c('BIC', 'AIC', 'Entropy')
+TableA5_process
+
+
+# Satisfaction with outcome
+TableA5_outcome <- data.frame(TwoClass = c(lca_outcome_2$bic, lca_outcome_2$aic, rel.entropy(lca_outcome_2)),
+                              ThreeClass = c(lca_outcome_3$bic, lca_outcome_3$aic, rel.entropy(lca_outcome_3)),
+                              FourClass = c(lca_outcome_4$bic, lca_outcome_4$aic, rel.entropy(lca_outcome_4)))
+
+row.names(TableA5_outcome) <- c('BIC', 'AIC', 'Entropy')
+
+TableA5_outcome
+
+############################################################################
+
+## LCA graphs
+
+resp <- factor(rep(c("Strongly disagree", "Disagree",
+                "Neither agree nor disagree",
+                "Agree", "Strongly agree"),12), levels = c("Strongly disagree", "Disagree",
+                                                           "Neither agree nor disagree",
+                                                           "Agree", "Strongly agree"))
+ind_proc <- c(rep('proc12',15),
+         rep('proc32',15),
+         rep('proc42',15),
+         rep('proc52',15))
+
+ind_outcome <- c(rep('outcome12',15),
+                 rep('outcome22',15),
+                 rep('outcome32',15),
+                 rep('outcome42',15))
+
+class_proc <- as.factor(rep(rep(1:3, each = 5),4))
+class_outcome <- as.factor(rep(rep(1:3, each = 5),4))
+           
+prob_proc <- c(as.numeric(lca_process_3$probs$proc12[1,]),
+          as.numeric(lca_process_3$probs$proc12[2,]),
+          as.numeric(lca_process_3$probs$proc12[3,]),
+          as.numeric(lca_process_3$probs$proc32[1,]),
+          as.numeric(lca_process_3$probs$proc32[2,]),
+          as.numeric(lca_process_3$probs$proc32[3,]),
+          as.numeric(lca_process_3$probs$proc42[1,]),
+          as.numeric(lca_process_3$probs$proc42[2,]),
+          as.numeric(lca_process_3$probs$proc42[3,]),
+          as.numeric(lca_process_3$probs$proc52[1,]),
+          as.numeric(lca_process_3$probs$proc52[2,]),
+          as.numeric(lca_process_3$probs$proc52[3,]))
+
+prob_outcome <- c(as.numeric(lca_outcome_3$probs$outcome12[1,]),
+                  as.numeric(lca_outcome_3$probs$outcome12[2,]),
+                  as.numeric(lca_outcome_3$probs$outcome12[3,]),
+                  as.numeric(lca_outcome_3$probs$outcome22[1,]),
+                  as.numeric(lca_outcome_3$probs$outcome22[2,]),
+                  as.numeric(lca_outcome_3$probs$outcome22[3,]),
+                  as.numeric(lca_outcome_3$probs$outcome32[1,]),
+                  as.numeric(lca_outcome_3$probs$outcome32[2,]),
+                  as.numeric(lca_outcome_3$probs$outcome32[3,]),
+                  as.numeric(lca_outcome_3$probs$outcome42[1,]),
+                  as.numeric(lca_outcome_3$probs$outcome42[2,]),
+                  as.numeric(lca_outcome_3$probs$outcome42[3,]))
+
+data_process <- data.frame(resp = resp,
+                           ind_proc = ind_proc,
+                           prob_proc = prob_proc,
+                           class_proc = class_proc)
+
+data_process$class_proc <- recode(data_process$class_proc, 
+                                     '1' = 'Positive',
+                                     '2' = 'Neutral',
+                                     '3' = 'Negative')
+data_process$class_proc <- factor(data_process$class_proc,
+                                     levels = c('Negative',
+                                                'Neutral',
+                                                'Positive'))
+
+data_outcome <- data.frame(resp = resp,
+                           ind_outcome = ind_outcome,
+                           prob_outcome = prob_outcome,
+                           class_outcome = class_outcome)
+
+data_outcome$class_outcome <- recode(data_outcome$class_outcome, 
+                                     '1' = 'Neutral',
+                                     '2' = 'Positive',
+                                     '3' = 'Negative')
+data_outcome$class_outcome <- factor(data_outcome$class_outcome,
+                                     levels = c('Negative',
+                                                'Neutral',
+                                                'Positive'))
+  
+ind.labs_proc <- c("Opportunities to express your views...",
+              "Your views were considered...",
+              "You were given an honest explanation...",
+              "You understood why the police...")
+names(ind.labs_proc) <- c("proc12", "proc32", "proc42", "proc52")
+
+ind.labs_outcome <- c("Satisfied with the outcome",
+                      "The outcome was fair",
+                      "The outcome was expected",
+                      "The outcome was deserved")
+names(ind.labs_outcome) <- c("outcome12", "outcome22", "outcome32", "outcome42")
+
+
+graph_proc <- ggplot(data_process, aes(y = prob_proc, x = resp, group=class_proc, colour = class_proc)) + 
+  geom_point(size=2) + geom_line() + facet_wrap( ~ ind_proc, ncol=2,
+                                                 labeller = labeller(ind_proc = ind.labs_proc)) + 
+  ylab("Probability") + xlab("") + labs(colour = "Latent class") +
+  theme(axis.text.x = element_text(angle = 30, hjust=1))
+
+
+graph_outcome <- ggplot(data_outcome, aes(y = prob_outcome, x = resp, group=class_outcome, colour = class_outcome)) + 
+  geom_point(size=2) + geom_line() + facet_wrap( ~ ind_outcome, ncol=2,
+                                                 labeller = labeller(ind_outcome = ind.labs_outcome)) + 
+  ylab("Probability") + xlab("") + labs(colour = "Latent class") +
+  theme(axis.text.x = element_text(angle = 30, hjust=1))
+
+pdf('plots/LCA_process.pdf')
+graph_proc
+dev.off()
+
+pdf('plots/LCA_outcome.pdf')
+graph_outcome
+dev.off()
+
+############################################################################
+
+## Using predited classes
+
+df_contact$pjcl <- lca_process_3$predclass
+df_contact$outcl <- lca_outcome_3$predclass
+
+df <- merge(df, df_contact[,c('id', 'pjcl', 'outcl')], by = 'id', all.x = T)
+
+na.zero <- function (x) {
+  x[is.na(x)] <- 0
+  return(x)
+}
+
+df[, c('pjcl', 'outcl')] <- lapply(df[, c('pjcl', 'outcl')], na.zero)
+
+df$pjcl <- recode(df$pjcl,
+                  '0' = '1', #'No contact',
+                  '1' = '2', #'Positive',
+                  '3' = '3', #'Negative',
+                  '2' = '4') # 'Neutral' (BASELINE)
+
+df$outcl <- recode(df$outcl,
+                   '0' = '1', #'No contact',
+                   '1' = '4', #'Neutral', (BASELINE)
+                   '2' = '2', #'Positive',
+                   '3' = '3') #'Negative'
+
+df[, c('pjcl', 'outcl')] <- lapply(df[, c('pjcl', 'outcl')],
+                                   as.numeric)
+############################################################################
+
+#df_contact$pjcl4 <- lca_process_4$predclass

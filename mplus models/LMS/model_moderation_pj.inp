@@ -1,0 +1,67 @@
+TITLE: 
+	SEM - interacting pj1 and cpj and eff1 and out for contact only
+
+DATA: 
+	File = "~/Dropbox/mplus_data/contactdata.dat"; ! change accordingly
+
+VARIABLE: 
+
+	NAMES = 	id male age aust
+			duty11 duty21 
+			pj11 pj21 pj31 pj41 
+			eff11 eff21 eff31
+			duty12 duty22 
+			pj12 pj22 pj32 pj42  
+			eff12 eff22 eff32 
+			contact1 
+			proc12 proc32 proc42 proc52
+			out12 out22 out32 out42 ;
+
+      	Usevariables = 	id male age aust
+      			pj11 pj21 pj31 pj41 
+      			pj12 pj22 pj32 pj42  
+      			proc12 proc32 proc42 proc52 
+      			out12 out22 out32 out42 ;
+
+	
+    	Idvariable = id ;
+	
+	MISSING=.;
+
+Analysis: 
+	Type = Random; 
+	Algorithm = Integration ;
+	
+
+MODEL:
+	
+	pj1 by pj11@0.485 pj21@0.663 pj31@0.710 pj41@0.525 ;
+	pj2 by pj12@0.485 pj22@0.663 pj32@0.710 pj42@0.525 ;
+	
+		pj1@1 ;
+		pj2@1 ;
+		
+		[pj1@0] ;
+		[pj2@0] ;
+		
+		pj11 with pj12 ;
+		pj21 with pj22 ;
+		pj31 with pj32 ;
+		pj41 with pj42 ;
+		
+	cpj by proc12@0.591 proc32@0.584 proc42@0.690 proc52@0.695 ;
+  		cpj@1 ;
+  		[cpj@0] ;
+	out by out12@0.97 out22@0.929 out32@0.693 out42@0.928 ;
+		out@1 ;
+		[cpj@0] ;
+		
+	cpjxc | cpj XWITH pj1 ;
+	outxc | out XWITH pj1 ;	
+				
+	
+	pj2 on pj1 out outxc cpj cpjxc male age aust ;
+
+
+Output:
+	SAMPSTAT; TECH1 ;

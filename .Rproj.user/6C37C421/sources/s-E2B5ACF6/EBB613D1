@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1601395071340.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1565772527",
+    "id" : "EBB613D1",
+    "lastKnownWriteTime" : 1601395334,
+    "last_content_update" : 1601395334392,
+    "path" : "~/Dropbox/Papers/English/Published papers/2020 JQC Hard to win, easy to lose/HardToWinEasyToLose_JQC2020/exporting data_ASEMs.R",
+    "project_path" : "exporting data_ASEMs.R",
+    "properties" : {
+        "cursorPosition" : "12,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

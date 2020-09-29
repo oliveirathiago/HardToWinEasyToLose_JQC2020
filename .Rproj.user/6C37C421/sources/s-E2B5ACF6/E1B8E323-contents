@@ -1,0 +1,133 @@
+rm(list=ls())
+library(foreign)
+library(readstata13)
+#devtools::install_github("tidyverse/tidyr")
+library(tidyr)
+library(dplyr)
+
+
+
+df <- read.dta("data/Copy of wave 1&2 merged N=1190 policing.dta")
+df1 <- read.spss("data/wave 1 Police data 2007 N2120.sav", to.data.frame=T)
+df2 <- read.spss("data/wave 2 Police data 2009 N1204.sav", to.data.frame=T)
+
+names(df1) <- tolower(names(df1))
+
+df_both <- merge(df1, df2, by = "id", all.x=T)
+df_both <- df_both[-907,] # removing a duplicate
+
+df_both <- dplyr::rename(df_both,  
+                         "male" = "p16q1",          # Gender
+                         "byear" = "p16q2",         # Year of birth
+                         "ethnicity" = "p16q7",     # Ethnicity
+                         "inc" = "p17q16",          # Income
+                         "duty1_1" = "p4q1g",       # feel moral obligation to obey police
+                         "duty2_1" = "p4q1h",       # obey police with good will
+                         "pj1_1" = "p11q8f",        # police treat people with dignity/respect
+                         "pj2_1" = "p11q8g",        # police give people opportunity to express views
+                         "pj3_1" = "p11q8h",        # police listen before making decisions
+                         "pj4_1" = "p11q8j",        # police make decisions based upon facts
+                         "duty1_2" = "s6q3e",       # feel moral obligation to obey police
+                         "duty2_2" = "s6q3b",       # obey police with good will
+                         "pj1_2" = "s5q2g",         # police treat people with dignity/respect
+                         "pj2_2" = "s5q2h",         # police give people opportunity to express views
+                         "pj3_2" = "s5q2i",         # police listen before making decisions
+                         "pj4_2" = "s5q2k",         # police make decisions based upon facts
+                         "cpj1" = "s18q5b",         # approachable
+                         "cpj2" = "s18q5d",         # polite
+                         "cpj3" = "s18q5e",         # professional
+                         "cpj4" = "s18q5f",         # fair
+                         "cpj5" = "s18q5j",         # keep me informed
+                         "proc1" = "s19q8a",        # opportunty to express
+                         "proc2" = "s19q8b",        # able to influence
+                         "proc3" = "s19q8c",        # views were considered
+                         "proc4" = "s19q8d",        # honest explanation
+                         "proc5" = "s19q8e",        # understood why
+                         "outcome1" = "s20q10a",    # satisfied with outcome
+                         "outcome2" = "s20q10b",    # outcome was fair
+                         "outcome3" = "s20q10c",    # outcome was expected
+                         "outcome4" = "s20q10d",    # outcome was deserved
+                         "satis" = "s20q11",        # satisfaction with contact with police
+                         "trust1_1" = "p4q1a",      # respect the police
+                         "trust2_1" = "p4q1b",      # trust the police
+                         "trust3_1" = "p4q1c",      # have confidence in police
+                         "trust1_2" = "s4q1a",      # respect the police
+                         "trust2_2" = "s4q1b",      # trust the police
+                         "trust3_2" = "s4q1c",      # have confidence in police
+                         "eff1_1" = "p11q7a",       # solving crime
+                         "eff2_1" = "p11q7d",       # preventing crime
+                         "eff3_1" = "p11q7e",       # keeping order
+                         "eff1_2" = "s13q3a",       # solving crime
+                         "eff2_2" = "s13q3d",       # preventing crime
+                         "eff3_2" = "s13q3e",       # keeping order
+                         "normidlaw1_1" = "p5q1ab", # feelings about right/wrong consistent with rules/laws
+                         "normidlaw2_1" = "p5q1ac", # laws police enforce consistent with ord Aust right/wrong
+                         "normidlaw1_2" = "s9q2h",  # feelings about right/wrong consistent with rules/laws
+                         "normidlaw2_2" = "s9q2i",  # laws police enforce consistent with ord Aust right/wrong
+                         "numbercontact" = "s17q1"  # number of contact
+)
+
+all.v <- c("id", 
+           "male",
+           "byear",
+           "ethnicity",
+           "inc",
+           "duty1_1",
+           "duty2_1",
+           "pj1_1",
+           "pj2_1",
+           "pj3_1",
+           "pj4_1",
+           "duty1_2",
+           "duty2_2",
+           "pj1_2",
+           "pj2_2",
+           "pj3_2",
+           "pj4_2",
+           "eff1_1",
+           "eff2_1",
+           "eff3_1",
+           "eff1_2",
+           "eff2_2",
+           "eff3_2")
+
+df_both <- df_both[,all.v]
+
+df_long_new <- df_both %>%
+  reshape(varying = c('duty1_1', "duty2_1",
+                      "pj1_1", "pj2_1", "pj3_1", "pj4_1",
+                      "duty1_2", "duty2_2",
+                      "pj1_2", "pj2_2", "pj3_2", "pj4_2",
+                      "eff1_1", "eff2_1", "eff3_1",
+                      "eff1_2", "eff2_2", 'eff3_2'),
+          timevar = 'wave',
+          idvar = 'id',
+          direction = 'long',
+          sep = '_')
+
+df1 <- df_long_new %>% 
+  filter(wave==1)
+
+df_long_new <- df_long_new[!is.na(df_long_new$duty1) & 
+                             !is.na(df_long_new$pj1) &
+                             !is.na(df_long_new$eff1), ]
+entries <- as.data.frame(table(df_long_new$id))
+entries <- dplyr::rename(entries, "id" = "Var1", "dropout" = "Freq")
+df1 <- merge(df1, entries, by="id", all.x=T)
+df1$dropout <- ifelse(df1$dropout==1,T,F)
+
+df1$male <- ifelse(df1$male=="Male",T,F)
+df1$age <- 2007 - df1$byear
+df1$male <- ifelse(df1$male==T,1,0)
+for (i in c(5, 7:15)) { df1[,i] <- as.numeric(df1[,i])}
+
+m1 <- glm(dropout ~ male + age + ethnicity + inc + pj1 + pj2 + pj3 + pj4 + 
+            duty1 + duty2 + eff1 + eff2 + eff3, family = binomial(link = logit), data=df1)
+summary(m1)
+
+m2 <- glm(dropout ~ male + age + ethnicity + inc + pj2 +
+            duty1 + eff3, family = binomial(link = logit), data=df1)
+summary(m2)
+
+### Only age predicts dropout. Every year multiples the odds of dropping out by 2.1%. Since age is associated
+### with positive views of the police, if anything, wave 2 is more critical about the police than wave 1.

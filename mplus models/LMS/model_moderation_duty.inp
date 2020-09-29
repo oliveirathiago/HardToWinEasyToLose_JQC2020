@@ -1,0 +1,65 @@
+TITLE: 
+	LMS - Duty to obey
+
+DATA: 
+	File = "~/Dropbox/mplus_data/contactdata.dat"; ! change accordingly
+
+VARIABLE: 
+
+	NAMES = 	id male age aust
+			duty11 duty21 
+			pj11 pj21 pj31 pj41 
+			eff11 eff21 eff31
+			duty12 duty22 
+			pj12 pj22 pj32 pj42  
+			eff12 eff22 eff32 
+			contact1 
+			proc12 proc32 proc42 proc52
+			out12 out22 out32 out42 ;
+
+      	Usevariables = 	id male age aust
+      			duty11 duty21
+      			duty12 duty22
+      			proc12 proc32 proc42 proc52 
+      			out12 out22 out32 out42 ;
+	
+    	Idvariable = id ;
+	
+	MISSING=.;
+
+Analysis: 
+	Type = Random; 
+	Algorithm = Integration ;
+	
+
+MODEL:
+
+	duty1 BY duty11@0.614 duty21@0.456 ;
+	duty2 BY duty12@0.614 duty22@0.456 ;
+
+	
+		duty1@1 ;
+		duty2@1 ;
+		
+		[duty1@0] ;
+		[duty2@0] ;
+	
+		duty11 with duty12 ;
+		duty21 with duty22 ;
+		
+	cpj by proc12@0.591 proc32@0.584 proc42@0.690 proc52@0.695 ;
+  		cpj@1 ;
+  		[cpj@0] ;
+	out by out12@0.97 out22@0.929 out32@0.693 out42@0.928 ;
+		out@1 ;
+		[cpj@0] ;
+		
+	cpjxc | cpj XWITH duty1 ;
+	outxc | out XWITH duty1 ;	
+				
+	
+	duty2 on duty1 out outxc cpj cpjxc male age aust ;
+
+
+Output:
+	SAMPSTAT; TECH1 ;

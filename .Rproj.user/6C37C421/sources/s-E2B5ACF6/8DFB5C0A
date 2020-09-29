@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1601393863299.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3282674069",
+    "id" : "8DFB5C0A",
+    "lastKnownWriteTime" : 1586358338,
+    "last_content_update" : 1586358338,
+    "path" : "~/Dropbox/Papers/English/Published papers/2020 JQC Hard to win, easy to lose/JQC - A longitudinal test of the asymmetry thesis/Analysis/Cleaning.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "104,0",
+        "scrollLine" : "64"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,108 @@
+rm(list=ls())
+library(foreign)
+library(lavaan)
+library(dplyr)
+library(MplusAutomation)
+library(poLCA)
+library(ggplot2)
+options(scipen=999)
+
+# Set Working Directory
+#setwd(tk_choose.dir()) # Select directory where you wish to save this script
+#setwd("~/Dropbox/Artigos/Legitimacy/Crim/Crim - A longitudinal test of the asymmetry thesis/Analysis")
+
+df <- read.dta("data/Copy of wave 1&2 merged N=1190 policing.dta")
+
+df <- rename(df,  "male" = "p16q1",         # Gender
+             "byear" = "p16q2",        # Year of birth
+             "ethnicity" = "p16q7",    # Ethnicity
+             "inc" = "p17q16",         # Income
+             "duty11" = "p4q1g",       # feel moral obligation to obey police
+             "duty21" = "p4q1h",       # obey police with good will
+             "pj11" = "p11q8f",        # police treat people with dignity/respect
+             "pj21" = "p11q8g",        # police give people opportunity to express views
+             "pj31" = "p11q8h",        # police listen before making decisions
+             "pj41" = "p11q8j",        # police make decisions based upon facts
+             "duty12" = "s6q3e",       # feel moral obligation to obey police
+             "duty22" = "s6q3b",       # obey police with good will
+             "pj12" = "s5q2g",         # police treat people with dignity/respect
+             "pj22" = "s5q2h",         # police give people opportunity to express views
+             "pj32" = "s5q2i",         # police listen before making decisions
+             "pj42" = "s5q2k",         # police make decisions based upon facts
+             "cpj12" = "s18q5b",       # approachable
+             "cpj22" = "s18q5d",       # polite
+             "cpj32" = "s18q5e",       # professional
+             "cpj42" = "s18q5f",       # fair
+             "cpj52" = "s18q5j",       # keep me informed
+             "proc12" = "s19q8a",      # opportunty to express
+             "proc22" = "s19q8b",      # able to influence
+             "proc32" = "s19q8c",      # views were considered
+             "proc42" = "s19q8d",      # honest explanation
+             "proc52" = "s19q8e",      # understood why
+             "outcome12" = "s20q10a",  # satisfied with outcome
+             "outcome22" = "s20q10b",  # outcome was fair
+             "outcome32" = "s20q10c",  # outcome was expected
+             "outcome42" = "s20q10d",  # outcome was deserved
+             "satis2" = "s20q11",      # satisfaction with contact with police
+             "trust11" = "p4q1a",      # respect the police
+             "trust21" = "p4q1b",      # trust the police
+             "trust31" = "p4q1c",      # have confidence in police
+             "trust12" = "s4q1a",      # respect the police
+             "trust22" = "s4q1b",      # trust the police
+             "trust32" = "s4q1c",      # have confidence in police
+             "eff11" = "p11q7a",       # solving crime
+             "eff21" = "p11q7d",       # preventing crime
+             "eff31" = "p11q7e",       # keeping order
+             "eff12" = "s13q3a",       # solving crime
+             "eff22" = "s13q3d",       # preventing crime
+             "eff32" = "s13q3e",       # keeping order
+             "normid_law11" = "p5q1ab",# feelings about right/wrong consistent with rules/laws
+             "normid_law21" = "p5q1ac",# laws police enforce consistent with ord Aust right/wrong
+             "normid_law12" = "s9q2h", # feelings about right/wrong consistent with rules/laws
+             "normid_law22" = "s9q2i", # laws police enforce consistent with ord Aust right/wrong
+             "number_contact" = "s17q1"# number of contact
+)
+
+df$male <- ifelse(df$male=="Male",T,F)
+df$age <- 2007 - df$byear
+df$contact1 <- ifelse(df$number_contact==0,0,1)
+df$citinit <- ifelse(df$s17q2=="You",1,0)
+df$polinit <- ifelse(df$s17q2=="Police",1,0)
+
+df <- df[,c("id", "male", "byear", "age", "inc", "ethnicity",
+            "duty11", "duty21", "pj11", "pj21", "pj31", "pj41",
+            "cpj12", "cpj22", "cpj32", "cpj42", "cpj52", "satis2",
+            "outcome12", "outcome22", "outcome32", "outcome42",
+            "duty12", "duty22", "pj12", "pj22", "pj32", "pj42",
+            "trust11", "trust21", "trust31", "trust12", "trust22", "trust32", 
+            "eff11", "eff21", "eff31", "eff12", "eff22", "eff32",
+            "normid_law11", "normid_law21", "normid_law12", "normid_law22",
+            "contact1", "proc12", "proc22", "proc32", "proc42", "proc52",
+            "citinit", "polinit")]
+
+df$inc <- na_if(df$inc, 0)
+
+for (i in c(5,7:44, 46:50)) {
+  df[,i] <- as.numeric(df[,i])
+}
+
+df$male <- ifelse(df$male==T,1,0)
+
+df <- df %>%
+  mutate(aust = ethnicity == 'Australian-non Aboriginal or Torres Strait Islander')
+
+
+df_contact <- filter(df, contact1==1)
+
+## Table 1
+for (i in c(7:12, 23:28, 35:40)) {
+  print(mean(df[,i], na.rm = T))  # duty to obey, trust in procedural justice, trust in police effectiveness
+}
+for (i in c(46:50, 19:22)) {
+  print(mean(df_contact[,i], na.rm = T))  # satisfaction with process, satisfaction with outcome
+}
+
+prepareMplusData(df_contact, 'mplus_data/data_for_lca.dat', dropCols = c('byear', 'ethnicity', 'cpj12', 'cpj22', 'cpj32', 'cpj42', 'cpj52',
+                                                                         'satis2', 'trust11', 'trust21', 'trust31', 'trust12', 'trust22',
+                                                                         'trust32', 'normid_law11', 'normid_law21', 'normid_law12', 'normid_law22',
+                                                                         'contact1', 'citinit', 'polinit'))

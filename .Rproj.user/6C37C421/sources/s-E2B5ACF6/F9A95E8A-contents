@@ -1,0 +1,18 @@
+load('data/df.Rdata')
+load('data/df_contact.Rdata')
+
+packages <- list("MplusAutomation", "dplyr")
+install <- packages[(!packages %in% installed.packages()[, "Package"])]
+if(length(install)) install.packages(packages)
+library(MplusAutomation)
+library(dplyr)
+
+## Exporting data to mplus
+
+prepareMplusData(df, "mplus_data/fulldata.dat")
+
+df_contact <- df_contact %>%
+  mutate_at(vars(proc12:outcome42), as.numeric)
+
+prepareMplusData(df_contact, "mplus_data/contactdata.dat")
+

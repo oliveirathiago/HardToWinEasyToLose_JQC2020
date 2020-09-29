@@ -1,0 +1,82 @@
+TITLE: 
+	Step 1 for LMS models -- CFA
+
+DATA: 
+	File = "~/Dropbox/mplus_data/contactdata.dat"; ! change accordingly
+
+VARIABLE: 
+
+	NAMES = 	id male age aust
+			duty11 duty21 
+			pj11 pj21 pj31 pj41 
+			eff11 eff21 eff31
+			duty12 duty22 
+			pj12 pj22 pj32 pj42  
+			eff12 eff22 eff32 
+			contact1 
+			proc12 proc32 proc42 proc52
+			out12 out22 out32 out42 ;
+
+      	Usevariables = 	id
+      			duty11 duty21
+      			pj11 pj21 pj31 pj41
+      			eff11 eff21 eff31 
+      			duty12 duty22
+      			pj12 pj22 pj32 pj42
+			eff12 eff22 eff32 ;
+	
+    	Idvariable = id ;
+	
+	MISSING=.;
+
+ANALYSIS: 
+	Estimator = MLR ;
+	
+
+MODEL:
+
+	duty1 BY duty11* duty21 (A1 A2);
+	duty2 BY duty12* duty22 (A1 A2);
+	
+		duty1@1 ;
+		duty2@1 ;
+	
+		duty11 with duty12 ;
+		duty21 with duty22 ;
+	
+	pj1 by pj11* pj21 pj31 pj41 (B1-B4);
+	pj2 by pj12* pj22 pj32 pj42 (B1-B4);
+	
+		pj1@1 ;
+		pj2@1 ;
+		
+		pj11 with pj12 ;
+		pj21 with pj22 ;
+		pj31 with pj32 ;
+		pj41 with pj42 ;
+		
+	eff1 by eff11* eff21 eff31 (C1-C3) ;
+	eff2 by eff12* eff22 eff32 (C1-C3) ;
+	
+		eff1@1 ;
+		eff2@1 ;
+		
+		eff11 with eff12 ;
+		eff21 with eff22 ;
+		eff31 with eff32 ;
+		
+	pj1 with eff1 ;
+	pj1 with duty1 ;
+	eff1 with duty1 ;
+	
+	pj2 with eff2 ;
+	pj2 with duty2 ;
+	eff2 with duty2 ;
+	
+	pj1 with eff2@0 duty2@0 ;
+	eff1 with pj2@0 duty2@0 ;
+	duty1 with pj2@0 eff2@0 ;
+		
+
+OUTPUT:
+	Standardized ;

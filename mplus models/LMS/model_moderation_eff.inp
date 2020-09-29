@@ -1,0 +1,65 @@
+TITLE: 
+	LMS - Effectiveness
+
+DATA: 
+	File = "~/Dropbox/mplus_data/contactdata.dat"; ! change accordingly
+
+VARIABLE: 
+
+	NAMES = 	id male age aust
+			duty11 duty21 
+			pj11 pj21 pj31 pj41 
+			eff11 eff21 eff31
+			duty12 duty22 
+			pj12 pj22 pj32 pj42  
+			eff12 eff22 eff32 
+			contact1 
+			proc12 proc32 proc42 proc52
+			out12 out22 out32 out42 ;
+
+      	Usevariables = 	id male age aust
+      			eff11 eff21 eff31
+			eff12 eff22 eff32
+      			proc12 proc32 proc42 proc52 
+      			out12 out22 out32 out42 ;
+
+	
+    	Idvariable = id ;
+	
+	MISSING=.;
+
+Analysis: 
+	Type = Random; 
+	Algorithm = Integration ;
+	
+
+MODEL:
+	
+	eff1 by eff11@0.495 eff21@0.636 eff31@0.560 ;
+	eff2 by eff12@0.495 eff22@0.636 eff32@0.560 ;
+	
+		eff1@1 ;
+		eff2@1 ;
+		
+		[eff1@0] ;
+		[eff2@0] ;
+		
+		eff11 with eff12 ;
+		eff21 with eff22 ;
+		eff31 with eff32 ;
+		
+	cpj by proc12@0.591 proc32@0.584 proc42@0.690 proc52@0.695 ;
+  		cpj@1 ;
+  		[cpj@0] ;
+	out by out12@0.97 out22@0.929 out32@0.693 out42@0.928 ;
+		out@1 ;
+		[out@0] ;
+		
+	cpjxc | cpj XWITH eff1 ;
+	outxc | out XWITH eff1 ;	
+	
+	eff2 on eff1 out outxc cpj cpjxc male age aust; 
+
+
+Output:
+	SAMPSTAT; TECH1 ; 

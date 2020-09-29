@@ -1,0 +1,24 @@
+source("A4_LCA models_new.R") # choose working directory accordingly
+
+## Exporting data to mplus
+
+prepareMplusData(df, "mplus_data/fulldata.dat", dropCols = c("byear", "ethnicity", "cpj12", "cpj22", "cpj32", "cpj42", "cpj52",
+                                                             "satis2", "trust11", "trust21", "trust31", "trust12", "trust22", 
+                                                             "trust32", "normid_law11", "normid_law21", "normid_law12", "normid_law22",
+                                                             "proc22", "citinit", "polinit"))
+df_contact[, c('proc12', 'proc32', 'proc42', 'proc52',
+               'outcome12', 'outcome22', 'outcome32', 'outcome42')] <- lapply(
+                 df_contact[, c('proc12', 'proc32', 'proc42', 'proc52',
+                                'outcome12', 'outcome22', 'outcome32', 'outcome42')],
+                 as.numeric)
+
+prepareMplusData(df_contact, "mplus_data/contactdata.dat", dropCols = c("byear", "ethnicity", "cpj12", "cpj22", "cpj32", "cpj42", "cpj52",
+                                                                        "satis2", "trust11", "trust21", "trust31", "trust12", "trust22", 
+                                                                        "trust32", "normid_law11", "normid_law22", "normid_law21", "normid_law12", "normid_law22",
+                                                                        "proc22", "citinit", "polinit"))
+
+#data.cit <- subset(df, df$citinit==1)
+#prepareMplusData(data.cit, "mplus_data/citinit.dat", dropCols = c("ethnicity"))
+#data.pol <- subset(df, df$polinit==1)
+#prepareMplusData(data.pol, "mplus_data/polinit.dat", dropCols = c("ethnicity"))
+

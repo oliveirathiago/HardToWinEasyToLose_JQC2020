@@ -1,0 +1,36 @@
+TITLE:
+	Latent Class Analysis - 3 classes - process
+DATA:
+	File = "~/Dropbox/mplus_data/data_for_lca.dat"; !change accordingly
+
+VARIABLE:
+	Names = 	id male age inc aust
+	  		duty11 duty21
+  			pj11 pj21 pj31 pj41
+			eff11 eff21 eff31
+	  		duty12 duty22
+  			pj12 pj22 pj32 pj42
+	  		eff12 eff22 eff32
+			proc12 proc22 proc32 proc42 proc52
+  			out12 out22 out32 out42 ;
+		
+	Usevariables =	id
+			proc12 proc32 proc42 proc52 ;
+			
+	Categorical = all ;
+	
+	Idvariable = id ;
+	
+	Classes = c(3) ;
+	
+	Missing = . ;
+	
+ANALYSIS:
+	Type = Mixture ;
+	Starts = 0;
+	
+OUTPUT: Tech1; Tech4 ;
+
+SAVEDATA:
+	File = "~/Dropbox/mplus_data/pjcl.txt" ;
+	Save = cprob ;
